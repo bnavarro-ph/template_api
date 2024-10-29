@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="60114269-a216-4e19-ade2-be4820b8d0a0" file="configs\${env}-config.yaml" doc:description="Environment independent properties"/>
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="c79b7da8-4d74-450c-ab43-a01d90d34aca" name="Router" keepApiBaseUri="true" parser="RAML" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a0585a39-43cc-4333-b2f0-1ecad7a15d28" basePath="${http.basepath}" >
+		<http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.timeout}" />
+	</http:listener-config>
+	<http:request-config name="HTTPS_Request_configuration" doc:name="HTTP Request configuration" doc:id="c208ceae-ce36-492f-8b2b-72c4bf98224b" >
+		<http:request-connection host="${httpsRequest.host}" port="${httpsRequest.port}" protocol="HTTPS">
+			<reconnection >
+				<reconnect frequency="${httpsRequest.reconnection.frequency}" count="${httpsRequest.reconnection.attempts}" />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:description="Secure Properties Config" doc:id="d4c6d6eb-4255-43f8-a176-406a74e5949d" file="security\${env}-secure.properties" key="${secure.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="97911463-46cf-4400-abeb-88c286875dcb" flowRef="main-flow" />
+   
+	<configuration-properties doc:name="Configuration properties" doc:description="Common Base Properties" doc:id="1d884727-716f-4a0b-bf50-3f2efd759e84" file="configs\common-config.yaml" />
+	<global-property doc:name="Global Property" doc:id="9c4f8c7b-ff6a-40d9-aa35-fc5ec86b7411" name="mule.env" value="local" doc:description="Actual environment"/>
+	<global-property doc:name="Global Property" doc:id="db4da508-46cf-42e2-9729-bdabe5e7900e" name="secure.key" value="${mule.key}" />
+	<flow name="main-flow" doc:id="014a8b79-3f2d-4c37-9243-fe1aec1e723b" >
+		<http:listener doc:name="Listener" doc:id="7c9b24af-26ed-418b-8b5e-6fc9f9bc1a56" config-ref="HTTP_Listener_config" path="/v1/*"/>
+		<apikit:router doc:name="APIkit Router" doc:id="fb64ab2f-3906-45dc-b05b-f39ac3f4f618" config-ref="Router"/>
+		<error-handler ref="global-error-handlerError_Handler" />
+	</flow>
+	<flow name="health-check" doc:id="3959a28b-4f8c-49ee-a354-95dab11ba46b" >
+		<flow-ref doc:name="Call health-check-flow" doc:id="83f42201-6ce1-4964-a15d-b07be4a5c5fd" name="health-check-flow"/>
+	</flow>
+</mule>

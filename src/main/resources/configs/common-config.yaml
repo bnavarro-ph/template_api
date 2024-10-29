@@ -1,0 +1,23 @@
+# JSON Logger Configurations [DO NOT DELETE - Also referenced by core-resources-lib]
+current.app:         
+  name:               "${project.artifactId}"
+  version:            "${project.version}"
+#  Needed when testing in Studio and app is restarted since resources filtering in pom will not update these props.
+project:
+  artifactId: "${project.artifactId}"
+  version: "${project.version}"
+  name: "${project.name}"
+
+health.verbose.client.id: ""
+
+# Include environment independent properties below
+connector:
+  retries: "3"
+  retryIntervel: "5000"
+  response:
+    timeout: "30000"
+    
+errors:
+  error-code-400: "400"
+  error-code-401: "401"
+  error-code-500: "500"

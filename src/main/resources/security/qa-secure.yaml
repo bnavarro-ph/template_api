@@ -1,0 +1,7 @@
+mule:
+  key: "1234567890"
+consumer:
+  key: "000000"
+store:
+  password: "111111"
+principal: "222222"
