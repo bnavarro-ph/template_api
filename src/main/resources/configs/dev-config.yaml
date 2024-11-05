@@ -9,6 +9,7 @@ api:
 http:
   host: "localhost"
   port: "8081"
+  basepath: "/api"
   
 httpsRequest:
   host: "localhost"
